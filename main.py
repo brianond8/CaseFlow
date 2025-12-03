@@ -130,7 +130,37 @@ class Case(SQLModel, table=True):
     tray_other: Optional[str] = None  # For "other" tray option
     created_at: datetime = SAField(default_factory=lambda: datetime.now(timezone.utc))
     notes: Optional[str] = None
-    
+
+
+class Doctor(SQLModel, table=True):
+    id: Optional[int] = SAField(default=None, primary_key=True)
+    user_id: str = SAField(index=True)
+    name: str = SAField(index=True)
+    specialty: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[str] = None
+    hospital: Optional[str] = None
+    created_at: datetime = SAField(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = SAField(default_factory=lambda: datetime.now(timezone.utc))
+
+
+class Note(SQLModel, table=True):
+    id: Optional[int] = SAField(default=None, primary_key=True)
+    user_id: str = SAField(index=True)
+    title: str
+    content: str
+    created_at: datetime = SAField(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = SAField(default_factory=lambda: datetime.now(timezone.utc))
+
+
+class NotePin(SQLModel, table=True):
+    id: Optional[int] = SAField(default=None, primary_key=True)
+    note_id: int = SAField(foreign_key="note.id", index=True)
+    entity_type: str = SAField(index=True)  # 'tray', 'case', 'doctor'
+    entity_id: int = SAField(index=True)
+    created_at: datetime = SAField(default_factory=lambda: datetime.now(timezone.utc))
+
+
 # =========================
 # Pydantic Schemas
 # =========================
@@ -248,6 +278,57 @@ class CaseOut(BaseModel):
     tray_name: Optional[str] = None  # Will populate from linked tray
     created_at: datetime
     notes: Optional[str]
+
+
+class CreateDoctorIn(BaseModel):
+    name: str = Field(min_length=1, max_length=200)
+    specialty: Optional[str] = Field(default=None, max_length=200)
+    phone: Optional[str] = Field(default=None, max_length=50)
+    email: Optional[str] = Field(default=None, max_length=200)
+    hospital: Optional[str] = Field(default=None, max_length=200)
+
+
+class DoctorOut(BaseModel):
+    id: int
+    user_id: str
+    name: str
+    specialty: Optional[str]
+    phone: Optional[str]
+    email: Optional[str]
+    hospital: Optional[str]
+    created_at: datetime
+    updated_at: datetime
+
+
+class CreateNoteIn(BaseModel):
+    title: str = Field(min_length=1, max_length=200)
+    content: str = Field(min_length=1)
+    pin_to_trays: Optional[list[int]] = Field(default=None)
+    pin_to_cases: Optional[list[int]] = Field(default=None)
+    pin_to_doctors: Optional[list[int]] = Field(default=None)
+
+
+class UpdateNoteIn(BaseModel):
+    title: Optional[str] = Field(default=None, min_length=1, max_length=200)
+    content: Optional[str] = Field(default=None, min_length=1)
+
+
+class NotePinOut(BaseModel):
+    id: int
+    entity_type: str
+    entity_id: int
+    entity_name: Optional[str] = None  # Will be populated with tray/case/doctor name
+
+
+class NoteOut(BaseModel):
+    id: int
+    user_id: str
+    title: str
+    content: str
+    created_at: datetime
+    updated_at: datetime
+    pins: list[NotePinOut] = []
+
 
 # =========================
 # Priority & Color Logic
@@ -856,7 +937,7 @@ def update_case(case_id: int, payload: CreateCaseIn):
         case = session.get(Case, case_id)
         if not case or case.user_id != USER_ID:
             raise HTTPException(404, "Case not found")
-        
+
         case.procedure = payload.procedure
         case.case_date = payload.case_date
         case.location = payload.location
@@ -864,17 +945,17 @@ def update_case(case_id: int, payload: CreateCaseIn):
         case.tray_id = payload.tray_id
         case.tray_other = payload.tray_other
         case.notes = payload.notes
-        
+
         session.add(case)
         session.commit()
         session.refresh(case)
-        
+
         tray_name = None
         if case.tray_id:
             tray = session.get(Tray, case.tray_id)
             if tray:
              tray_name = tray.name
-        
+
         return CaseOut(
             id=case.id,
             user_id=case.user_id,
@@ -888,3 +969,333 @@ def update_case(case_id: int, payload: CreateCaseIn):
             created_at=case.created_at,
             notes=case.notes,
         )
+
+
+# =========================
+# Doctor Endpoints
+# =========================
+
+@app.post("/doctors", response_model=DoctorOut)
+def create_doctor(payload: CreateDoctorIn):
+    with Session(engine) as session:
+        doctor = Doctor(
+            user_id=USER_ID,
+            name=payload.name,
+            specialty=payload.specialty,
+            phone=payload.phone,
+            email=payload.email,
+            hospital=payload.hospital,
+        )
+        session.add(doctor)
+        session.commit()
+        session.refresh(doctor)
+        return doctor
+
+
+@app.get("/doctors", response_model=list[DoctorOut])
+def list_doctors():
+    with Session(engine) as session:
+        doctors = session.exec(
+            select(Doctor).where(Doctor.user_id == USER_ID).order_by(Doctor.name)
+        ).all()
+        return doctors
+
+
+@app.get("/doctors/{doctor_id}", response_model=DoctorOut)
+def get_doctor(doctor_id: int):
+    with Session(engine) as session:
+        doctor = session.get(Doctor, doctor_id)
+        if not doctor or doctor.user_id != USER_ID:
+            raise HTTPException(404, "Doctor not found")
+        return doctor
+
+
+@app.put("/doctors/{doctor_id}", response_model=DoctorOut)
+def update_doctor(doctor_id: int, payload: CreateDoctorIn):
+    with Session(engine) as session:
+        doctor = session.get(Doctor, doctor_id)
+        if not doctor or doctor.user_id != USER_ID:
+            raise HTTPException(404, "Doctor not found")
+
+        doctor.name = payload.name
+        doctor.specialty = payload.specialty
+        doctor.phone = payload.phone
+        doctor.email = payload.email
+        doctor.hospital = payload.hospital
+        doctor.updated_at = datetime.now(timezone.utc)
+
+        session.add(doctor)
+        session.commit()
+        session.refresh(doctor)
+        return doctor
+
+
+@app.delete("/doctors/{doctor_id}")
+def delete_doctor(doctor_id: int):
+    with Session(engine) as session:
+        doctor = session.get(Doctor, doctor_id)
+        if not doctor or doctor.user_id != USER_ID:
+            raise HTTPException(404, "Doctor not found")
+
+        # Delete all note pins associated with this doctor
+        pins = session.exec(
+            select(NotePin).where(
+                NotePin.entity_type == "doctor",
+                NotePin.entity_id == doctor_id
+            )
+        ).all()
+        for pin in pins:
+            session.delete(pin)
+
+        session.delete(doctor)
+        session.commit()
+        return {"ok": True}
+
+
+# =========================
+# Note Endpoints
+# =========================
+
+def note_to_out(session: Session, note: Note) -> NoteOut:
+    """Convert a Note model to NoteOut with populated pins"""
+    pins = session.exec(
+        select(NotePin).where(NotePin.note_id == note.id)
+    ).all()
+
+    pin_outs = []
+    for pin in pins:
+        entity_name = None
+        if pin.entity_type == "tray":
+            tray = session.get(Tray, pin.entity_id)
+            if tray:
+                entity_name = tray.name
+        elif pin.entity_type == "case":
+            case = session.get(Case, pin.entity_id)
+            if case:
+                entity_name = f"{case.procedure} - {case.case_date.strftime('%m/%d/%Y')}"
+        elif pin.entity_type == "doctor":
+            doctor = session.get(Doctor, pin.entity_id)
+            if doctor:
+                entity_name = doctor.name
+
+        pin_outs.append(NotePinOut(
+            id=pin.id,
+            entity_type=pin.entity_type,
+            entity_id=pin.entity_id,
+            entity_name=entity_name
+        ))
+
+    return NoteOut(
+        id=note.id,
+        user_id=note.user_id,
+        title=note.title,
+        content=note.content,
+        created_at=note.created_at,
+        updated_at=note.updated_at,
+        pins=pin_outs
+    )
+
+
+@app.post("/notes", response_model=NoteOut)
+def create_note(payload: CreateNoteIn):
+    with Session(engine) as session:
+        note = Note(
+            user_id=USER_ID,
+            title=payload.title,
+            content=payload.content,
+        )
+        session.add(note)
+        session.commit()
+        session.refresh(note)
+
+        # Add pins
+        if payload.pin_to_trays:
+            for tray_id in payload.pin_to_trays:
+                pin = NotePin(note_id=note.id, entity_type="tray", entity_id=tray_id)
+                session.add(pin)
+
+        if payload.pin_to_cases:
+            for case_id in payload.pin_to_cases:
+                pin = NotePin(note_id=note.id, entity_type="case", entity_id=case_id)
+                session.add(pin)
+
+        if payload.pin_to_doctors:
+            for doctor_id in payload.pin_to_doctors:
+                pin = NotePin(note_id=note.id, entity_type="doctor", entity_id=doctor_id)
+                session.add(pin)
+
+        session.commit()
+        return note_to_out(session, note)
+
+
+@app.get("/notes", response_model=list[NoteOut])
+def list_notes():
+    with Session(engine) as session:
+        notes = session.exec(
+            select(Note).where(Note.user_id == USER_ID).order_by(Note.updated_at.desc())
+        ).all()
+        return [note_to_out(session, note) for note in notes]
+
+
+@app.get("/notes/{note_id}", response_model=NoteOut)
+def get_note(note_id: int):
+    with Session(engine) as session:
+        note = session.get(Note, note_id)
+        if not note or note.user_id != USER_ID:
+            raise HTTPException(404, "Note not found")
+        return note_to_out(session, note)
+
+
+@app.put("/notes/{note_id}", response_model=NoteOut)
+def update_note(note_id: int, payload: UpdateNoteIn):
+    with Session(engine) as session:
+        note = session.get(Note, note_id)
+        if not note or note.user_id != USER_ID:
+            raise HTTPException(404, "Note not found")
+
+        if payload.title is not None:
+            note.title = payload.title
+        if payload.content is not None:
+            note.content = payload.content
+        note.updated_at = datetime.now(timezone.utc)
+
+        session.add(note)
+        session.commit()
+        session.refresh(note)
+        return note_to_out(session, note)
+
+
+@app.delete("/notes/{note_id}")
+def delete_note(note_id: int):
+    with Session(engine) as session:
+        note = session.get(Note, note_id)
+        if not note or note.user_id != USER_ID:
+            raise HTTPException(404, "Note not found")
+
+        # Delete all pins associated with this note
+        pins = session.exec(select(NotePin).where(NotePin.note_id == note_id)).all()
+        for pin in pins:
+            session.delete(pin)
+
+        session.delete(note)
+        session.commit()
+        return {"ok": True}
+
+
+class PinNoteRequest(BaseModel):
+    entity_type: Literal["tray", "case", "doctor"]
+    entity_id: int
+
+
+@app.post("/notes/{note_id}/pin", response_model=NoteOut)
+def pin_note(note_id: int, payload: PinNoteRequest):
+    with Session(engine) as session:
+        note = session.get(Note, note_id)
+        if not note or note.user_id != USER_ID:
+            raise HTTPException(404, "Note not found")
+
+        # Check if already pinned
+        existing = session.exec(
+            select(NotePin).where(
+                NotePin.note_id == note_id,
+                NotePin.entity_type == payload.entity_type,
+                NotePin.entity_id == payload.entity_id
+            )
+        ).first()
+
+        if existing:
+            raise HTTPException(400, "Note already pinned to this entity")
+
+        pin = NotePin(
+            note_id=note_id,
+            entity_type=payload.entity_type,
+            entity_id=payload.entity_id
+        )
+        session.add(pin)
+        session.commit()
+
+        return note_to_out(session, note)
+
+
+@app.delete("/notes/{note_id}/pin/{pin_id}")
+def unpin_note(note_id: int, pin_id: int):
+    with Session(engine) as session:
+        note = session.get(Note, note_id)
+        if not note or note.user_id != USER_ID:
+            raise HTTPException(404, "Note not found")
+
+        pin = session.get(NotePin, pin_id)
+        if not pin or pin.note_id != note_id:
+            raise HTTPException(404, "Pin not found")
+
+        session.delete(pin)
+        session.commit()
+        return {"ok": True}
+
+
+# Get notes for specific entities
+@app.get("/trays/{tray_id}/notes", response_model=list[NoteOut])
+def get_tray_notes(tray_id: int):
+    with Session(engine) as session:
+        tray = get_tray_or_404(session, tray_id)
+
+        pins = session.exec(
+            select(NotePin).where(
+                NotePin.entity_type == "tray",
+                NotePin.entity_id == tray_id
+            )
+        ).all()
+
+        notes = []
+        for pin in pins:
+            note = session.get(Note, pin.note_id)
+            if note and note.user_id == USER_ID:
+                notes.append(note_to_out(session, note))
+
+        return notes
+
+
+@app.get("/cases/{case_id}/notes", response_model=list[NoteOut])
+def get_case_notes(case_id: int):
+    with Session(engine) as session:
+        case = session.get(Case, case_id)
+        if not case or case.user_id != USER_ID:
+            raise HTTPException(404, "Case not found")
+
+        pins = session.exec(
+            select(NotePin).where(
+                NotePin.entity_type == "case",
+                NotePin.entity_id == case_id
+            )
+        ).all()
+
+        notes = []
+        for pin in pins:
+            note = session.get(Note, pin.note_id)
+            if note and note.user_id == USER_ID:
+                notes.append(note_to_out(session, note))
+
+        return notes
+
+
+@app.get("/doctors/{doctor_id}/notes", response_model=list[NoteOut])
+def get_doctor_notes(doctor_id: int):
+    with Session(engine) as session:
+        doctor = session.get(Doctor, doctor_id)
+        if not doctor or doctor.user_id != USER_ID:
+            raise HTTPException(404, "Doctor not found")
+
+        pins = session.exec(
+            select(NotePin).where(
+                NotePin.entity_type == "doctor",
+                NotePin.entity_id == doctor_id
+            )
+        ).all()
+
+        notes = []
+        for pin in pins:
+            note = session.get(Note, pin.note_id)
+            if note and note.user_id == USER_ID:
+                notes.append(note_to_out(session, note))
+
+        return notes

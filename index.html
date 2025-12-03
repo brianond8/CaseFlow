@@ -1,10 +1,10 @@
-<!-- Version 2.1 - Fixed Calendar Tab with FullCalendar -->
+<!-- Version 3.0 - Doctor Database & Enhanced Notes with Pin Feature -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CaseFlow - Tray Manager</title>
+    <title>TrayTrack AI - Medical Tray Management</title>
     <link href='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.10/index.min.css' rel='stylesheet' />
     <script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.10/index.global.min.js'></script>
     <style>
@@ -13,108 +13,105 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-            background: #f5f5f7;
-            padding: 16px;
+            background: #f8fafc;
+            min-height: 100vh;
+            padding: 20px;
             padding-bottom: 80px;
         }
-        
+
         .header {
             background: white;
-            padding: 16px;
-            border-radius: 12px;
-            margin-bottom: 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 28px 32px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid #e5e7eb;
         }
-        
+
         h1 {
-            font-size: 24px;
-            color: #1d1d1f;
+            font-size: 28px;
+            font-weight: 700;
+            color: #6366f1;
             margin-bottom: 8px;
+            letter-spacing: -0.5px;
         }
-        
+
         .user-info {
             font-size: 14px;
-            color: #86868b;
+            color: #6b7280;
+            font-weight: 400;
         }
-        
+
         .tabs {
             display: flex;
             gap: 8px;
-            margin-bottom: 16px;
+            margin-bottom: 24px;
             overflow-x: auto;
+            padding: 0;
         }
-        
+
         .tab {
             padding: 10px 20px;
             background: white;
-            border: none;
-            border-radius: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
             font-size: 14px;
             font-weight: 500;
             cursor: pointer;
             white-space: nowrap;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.2s ease;
+            color: #6b7280;
         }
-        
+
+        .tab:hover {
+            border-color: #6366f1;
+            color: #6366f1;
+        }
+
         .tab.active {
-            background: #007aff;
+            background: #6366f1;
             color: white;
+            border-color: #6366f1;
         }
-        
+
         .tray-list {
             display: flex;
             flex-direction: column;
             gap: 12px;
         }
-        
+
         .tray-card {
             background: white;
-            padding: 16px;
+            padding: 20px;
             border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            border-left: 4px solid;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 2px solid;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: all 0.2s ease;
+            position: relative;
         }
-        
-        .tray-card:active {
-            transform: scale(0.98);
+
+        .tray-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
         }
-        
-        .tray-card.green { border-left-color: #34c759; }
-        .tray-card.blue { border-left-color: #007aff; }
-        .tray-card.yellow { border-left-color: #ffcc00; }
-        .tray-card.orange { border-left-color: #ff9500; }
-        .tray-card.red { border-left-color: #ff3b30; }
-        
+
+        .tray-card.green { border-color: #34c759; }
+        .tray-card.blue { border-color: #007aff; }
+        .tray-card.yellow { border-color: #ffcc00; }
+        .tray-card.orange { border-color: #ff9500; }
+        .tray-card.red { border-color: #ff3b30; }
+
         .tray-name {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 8px;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #1f2937;
         }
-        
-        .tray-status {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 500;
-            margin-bottom: 8px;
-        }
-        
-        .status-ready { background: #d1f4e0; color: #00713d; }
-        .status-in_location { background: #d1e7ff; color: #0051a5; }
-        .status-needs_restock { background: #ffe5d1; color: #9a4500; }
-        
-        .tray-location {
-            font-size: 14px;
-            color: #86868b;
-            margin-top: 8px;
-        }
-        
+
         .modal {
             display: none;
             position: fixed;
@@ -126,34 +123,37 @@
             z-index: 1000;
             overflow-y: auto;
         }
-        
+
         .modal.show {
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 16px;
+            animation: fadeIn 0.2s ease;
         }
-        
+
         .modal-content {
             background: white;
             border-radius: 16px;
-            padding: 24px;
+            padding: 32px;
             max-width: 500px;
             width: 100%;
             max-height: 90vh;
             overflow-y: auto;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
         }
-        
+
         .modal-header {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 16px;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #111827;
         }
-        
+
         .form-group {
             margin-bottom: 16px;
         }
-        
+
         .form-label {
             display: block;
             font-size: 14px;
@@ -161,195 +161,241 @@
             margin-bottom: 8px;
             color: #1d1d1f;
         }
-        
-        .form-input, .form-select {
+
+        .form-input, .form-select, .form-textarea {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #d2d2d7;
+            padding: 10px 14px;
+            border: 1px solid #d1d5db;
             border-radius: 8px;
-            font-size: 16px;
+            font-size: 15px;
+            background: white;
+            transition: all 0.2s ease;
         }
-        
-        .form-input:focus, .form-select:focus {
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
             outline: none;
-            border-color: #007aff;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
         }
-        
-        .item-list {
-            border: 1px solid #d2d2d7;
-            border-radius: 8px;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        
-        .item-checkbox {
-            padding: 12px;
-            border-bottom: 1px solid #f5f5f7;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .item-checkbox:last-child {
-            border-bottom: none;
-        }
-        
-        .item-checkbox input {
-            width: 20px;
-            height: 20px;
-        }
-        
-        .item-checkbox label {
-            flex: 1;
-            font-size: 14px;
-        }
-        
-        .critical-badge {
-            background: #ff3b30;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 600;
-        }
-        
+
         .btn {
             width: 100%;
-            padding: 14px;
+            padding: 12px 24px;
             border: none;
             border-radius: 8px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            margin-top: 8px;
+            margin-top: 10px;
+            transition: all 0.2s ease;
         }
-        
+
         .btn-primary {
-            background: #007aff;
+            background: #6366f1;
             color: white;
         }
-        
+
+        .btn-primary:hover {
+            background: #4f46e5;
+        }
+
         .btn-success {
-            background: #34c759;
+            background: #10b981;
             color: white;
         }
-        
+
         .btn-secondary {
-            background: #f5f5f7;
-            color: #1d1d1f;
+            background: white;
+            color: #6b7280;
+            border: 1px solid #e5e7eb;
         }
-        
-        .btn:active {
-            opacity: 0.8;
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
         }
-        
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #86868b;
+
+        .error {
+            background: #fee;
+            color: #c62828;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
         }
-        
+
+        .success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
         .loading {
             text-align: center;
             padding: 40px;
             color: #86868b;
         }
-        
-        .error {
-            background: #ffebee;
-            color: #c62828;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 16px;
-            font-size: 14px;
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #86868b;
         }
-        
-        .success {
-            background: #e8f5e9;
-            color: #2e7d32;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 16px;
-            font-size: 14px;
-        }
-        
-        .priority-selector {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-            margin-top: 8px;
-        }
-        
-        .priority-btn {
-            padding: 12px;
-            border: 2px solid #d2d2d7;
-            border-radius: 8px;
+
+        .doctor-card {
             background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            margin-bottom: 12px;
+            border-left: 4px solid #6366f1;
             cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .doctor-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .doctor-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .doctor-specialty {
             font-size: 14px;
+            color: #6366f1;
+            margin-bottom: 8px;
+        }
+
+        .doctor-contact {
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .note-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            margin-bottom: 12px;
+            border-left: 4px solid #f59e0b;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .note-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .note-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .note-preview {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .note-pins {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .pin-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #ede9fe;
+            color: #6366f1;
+            border-radius: 12px;
+            font-size: 12px;
             font-weight: 500;
         }
-        
-        .priority-btn.selected {
-            border-color: #007aff;
-            background: #e5f2ff;
-        }
-        
-        .admin-section {
-            background: white;
-            padding: 16px;
-            border-radius: 12px;
-            margin-bottom: 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+
+        .pinned-note {
+            background: #fffbeb;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 12px;
+            border-left: 3px solid #f59e0b;
         }
 
-        /* Calendar Styles */
-        #calendar {
-            background: white;
-            padding: 16px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            margin-bottom: 16px;
-        }
-
-        .fc-event {
-            cursor: pointer;
-        }
-
-        .case-detail-modal {
+        .pinned-note-title {
             font-size: 14px;
-            line-height: 1.6;
-        }
-
-        .case-detail-modal .detail-row {
-            margin-bottom: 12px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #f5f5f7;
-        }
-
-        .case-detail-modal .detail-row:last-child {
-            border-bottom: none;
-        }
-
-        .case-detail-modal .detail-label {
             font-weight: 600;
-            color: #1d1d1f;
-            margin-bottom: 4px;
+            color: #92400e;
+            margin-bottom: 6px;
         }
 
-        .case-detail-modal .detail-value {
-            color: #86868b;
+        .pinned-note-content {
+            font-size: 13px;
+            color: #78350f;
+            white-space: pre-wrap;
+        }
+
+        .pin-to-section {
+            background: #f9fafb;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+        }
+
+        .pin-to-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 12px;
+        }
+
+        .pin-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            margin-bottom: 6px;
+        }
+
+        .pin-checkbox input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+
+        .pin-checkbox label {
+            flex: 1;
+            font-size: 14px;
+            color: #374151;
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>CaseFlow</h1>
+        <h1>TrayTrack AI</h1>
         <div class="user-info">Rep: <span id="userName">John Smith</span></div>
     </div>
 
     <div class="tabs">
         <button class="tab active" onclick="showTab('trays')">My Trays</button>
+        <button class="tab" onclick="showTab('doctors')">Doctors</button>
+        <button class="tab" onclick="showTab('notes')">Notes</button>
         <button class="tab" onclick="showTab('calendar')">Calendar</button>
         <button class="tab" onclick="showTab('admin')">Admin</button>
     </div>
@@ -359,70 +405,42 @@
 
     <!-- TRAYS TAB -->
     <div id="traysTab">
-        <div style="background: white; padding: 16px; border-radius: 12px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-            <div class="form-group" style="margin-bottom: 12px;">
-                <label class="form-label">Search Trays</label>
-                <div style="position: relative;">
-                    <input type="text" id="traySearchInput" class="form-input" placeholder="Search by tray name..." oninput="searchTrays()" style="padding-right: 40px;">
-                    <button id="clearSearchBtn" onclick="clearSearch()" style="display: none; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: #86868b; color: white; border: none; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; font-size: 16px; line-height: 1;">×</button>
-                </div>
-            </div>
-            <label class="form-label">Sort By:</label>
-            <select id="traySortSelect" class="form-select" onchange="sortTrays()">
-                <option value="readiness">Tray Readiness (Ready first)</option>
-                <option value="priority">Restock Priority (Urgent first)</option>
-                <option value="location">Location</option>
-                <option value="case_date">Upcoming Case Date</option>
-            </select>
-        </div>
         <div id="trayList" class="tray-list">
             <div class="loading">Loading trays...</div>
         </div>
     </div>
 
-    <!-- CALENDAR TAB (FIXED - No longer nested!) -->
-    <div id="calendarTab" style="display:none;">
-        <div class="admin-section">
-            <h2 style="margin-bottom: 16px;">Book a Case</h2>
-            <div class="form-group">
-                <label class="form-label">Procedure *</label>
-                <input type="text" id="caseProcedure" class="form-input" placeholder="e.g., Spinal Fusion">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Date & Time *</label>
-                <input type="datetime-local" id="caseDateTime" class="form-input">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Location *</label>
-                <input type="text" id="caseLocation" class="form-input" placeholder="e.g., St. Mary's Hospital OR 3">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Doctor (Optional)</label>
-                <input type="text" id="caseDoctor" class="form-input" placeholder="e.g., Dr. Smith">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Tray (Optional)</label>
-                <select id="caseTray" class="form-select">
-                    <option value="">Select a tray...</option>
-                </select>
-            </div>
-            <div class="form-group" id="otherTrayGroup" style="display:none;">
-                <label class="form-label">Other Tray Name</label>
-                <input type="text" id="caseOtherTray" class="form-input" placeholder="Enter tray name">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Notes (Optional)</label>
-                <textarea id="caseNotes" class="form-input" rows="3" placeholder="Any additional notes"></textarea>
-            </div>
-            <button class="btn btn-primary" onclick="createCase()">Book Case</button>
+    <!-- DOCTORS TAB -->
+    <div id="doctorsTab" style="display:none;">
+        <div style="margin-bottom: 16px;">
+            <button class="btn btn-primary" onclick="showCreateDoctorForm()" style="width: auto; padding: 12px 24px;">+ Add Doctor</button>
         </div>
+        <div id="doctorList" class="tray-list">
+            <div class="loading">Loading doctors...</div>
+        </div>
+    </div>
 
+    <!-- NOTES TAB -->
+    <div id="notesTab" style="display:none;">
+        <div style="margin-bottom: 16px;">
+            <button class="btn btn-primary" onclick="showCreateNoteForm()" style="width: auto; padding: 12px 24px;">+ Create Note</button>
+        </div>
+        <div id="noteList" class="tray-list">
+            <div class="loading">Loading notes...</div>
+        </div>
+    </div>
+
+    <!-- CALENDAR TAB -->
+    <div id="calendarTab" style="display:none;">
+        <div style="margin-bottom: 16px;">
+            <button class="btn btn-primary" onclick="showBookCaseForm()" style="width: auto; padding: 12px 24px;">+ Book a Case</button>
+        </div>
         <div id="calendar"></div>
     </div>
 
     <!-- ADMIN TAB -->
     <div id="adminTab" style="display:none;">
-        <div class="admin-section">
+        <div style="background: white; padding: 24px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
             <h2 style="margin-bottom: 16px;">Create Tray</h2>
             <div class="form-group">
                 <label class="form-label">Tray Name</label>
@@ -430,8 +448,8 @@
             </div>
             <button class="btn btn-primary" onclick="createTray()">Create Tray</button>
         </div>
-        
-        <div class="admin-section">
+
+        <div style="background: white; padding: 24px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
             <h2 style="margin-bottom: 16px;">Add Item to Tray</h2>
             <div class="form-group">
                 <label class="form-label">Select Tray</label>
@@ -465,929 +483,624 @@
         </div>
     </div>
 
-    <!-- MODAL FOR TRAY DETAILS -->
-    <div id="trayModal" class="modal">
+    <!-- GENERIC MODAL -->
+    <div id="modal" class="modal">
         <div class="modal-content">
-            <div class="modal-header" id="modalTrayName">Tray Details</div>
-            <div id="modalContent"></div>
-        </div>
-    </div>
-
-    <!-- MODAL FOR CASE DETAILS -->
-    <div id="caseModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">Case Details</div>
-            <div id="caseModalContent" class="case-detail-modal"></div>
+            <div class="modal-header" id="modalHeader">Modal</div>
+            <div id="modalBody"></div>
         </div>
     </div>
 
     <script>
         const API_URL = 'http://127.0.0.1:8000';
         const USER_ID = 'rep001';
-        let currentTray = null;
         let allTrays = [];
+        let allDoctors = [];
+        let allNotes = [];
         let allCases = [];
         let calendar = null;
+
+        // =========================
+        // TAB MANAGEMENT
+        // =========================
 
         function showTab(tab) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             event.target.classList.add('active');
-            
+
+            document.getElementById('traysTab').style.display = 'none';
+            document.getElementById('doctorsTab').style.display = 'none';
+            document.getElementById('notesTab').style.display = 'none';
+            document.getElementById('calendarTab').style.display = 'none';
+            document.getElementById('adminTab').style.display = 'none';
+
             if (tab === 'trays') {
                 document.getElementById('traysTab').style.display = 'block';
-                document.getElementById('calendarTab').style.display = 'none';
-                document.getElementById('adminTab').style.display = 'none';
                 loadTrays();
+            } else if (tab === 'doctors') {
+                document.getElementById('doctorsTab').style.display = 'block';
+                loadDoctors();
+            } else if (tab === 'notes') {
+                document.getElementById('notesTab').style.display = 'block';
+                loadNotes();
             } else if (tab === 'calendar') {
-                document.getElementById('traysTab').style.display = 'none';
                 document.getElementById('calendarTab').style.display = 'block';
-                document.getElementById('adminTab').style.display = 'none';
-                loadTraysForCases();
-                initializeCalendar();
-            } else {
-                document.getElementById('traysTab').style.display = 'none';
-                document.getElementById('calendarTab').style.display = 'none';
+                if (!calendar) initializeCalendar();
+                loadCalendarEvents();
+            } else if (tab === 'admin') {
                 document.getElementById('adminTab').style.display = 'block';
                 loadTraysForAdmin();
             }
         }
 
+        // =========================
+        // TRAY FUNCTIONS
+        // =========================
+
         async function loadTrays() {
             try {
                 const response = await fetch(`${API_URL}/trays?sort=priority`);
-                const trays = await response.json();
-                allTrays = trays;
-                
-                // Also load cases for case date sorting
-                const casesResponse = await fetch(`${API_URL}/cases`);
-                allCases = await casesResponse.json();
-                
-                sortTrays();
+                allTrays = await response.json();
+                renderTrays();
             } catch (error) {
                 showError('Failed to load trays');
                 console.error(error);
             }
         }
 
-        function sortTrays() {
-            const sortBy = document.getElementById('traySortSelect').value;
-            const searchTerm = document.getElementById('traySearchInput').value.toLowerCase().trim();
+        function renderTrays() {
             const listEl = document.getElementById('trayList');
-            
-            // Filter trays by search term
-            let filteredTrays = allTrays;
-            if (searchTerm) {
-                filteredTrays = allTrays.filter(tray => 
-                    tray.name.toLowerCase().includes(searchTerm)
-                );
-            }
-            
-            if (filteredTrays.length === 0) {
-                if (searchTerm) {
-                    listEl.innerHTML = '<div class="empty-state">No trays found matching "' + searchTerm + '"</div>';
-                } else {
-                    listEl.innerHTML = '<div class="empty-state">No trays yet. Use Admin tab to create one.</div>';
-                }
+
+            if (allTrays.length === 0) {
+                listEl.innerHTML = '<div class="empty-state">No trays yet. Use Admin tab to create one.</div>';
                 return;
             }
-            
-            let sortedTrays = [...filteredTrays];
-            
-            // Define location order (same as dropdown)
-            const locationOrder = ['Hospital', 'Warehouse', 'Vehicle', 'Office', 'Home', 'Storage', 'Other'];
-            
-            // Priority rank for readiness sorting (Ready at top)
-            const readinessRank = {
-                'ready': 0,
-                'in_location': 1,
-                'needs_restock': 2
-            };
-            
-            // Priority rank for restock priority sorting (P3 at top)
-            const priorityRank = {
-                'red': 0,    // P3
-                'orange': 1, // P2
-                'yellow': 2, // P1
-                'blue': 3,   // Partial
-                'green': 4   // Ready
-            };
-            
-            switch(sortBy) {
-                case 'readiness':
-                    sortedTrays.sort((a, b) => {
-                        const aRank = readinessRank[a.status] ?? 999;
-                        const bRank = readinessRank[b.status] ?? 999;
-                        if (aRank !== bRank) return aRank - bRank;
-                        return a.name.localeCompare(b.name);
-                    });
-                    break;
-                    
-                case 'priority':
-                    sortedTrays.sort((a, b) => {
-                        const aRank = priorityRank[a.color] ?? 999;
-                        const bRank = priorityRank[b.color] ?? 999;
-                        if (aRank !== bRank) return aRank - bRank;
-                        return a.name.localeCompare(b.name);
-                    });
-                    break;
-                    
-                case 'location':
-                    sortedTrays.sort((a, b) => {
-                        const aLoc = a.last_location_type || 'zzz';
-                        const bLoc = b.last_location_type || 'zzz';
-                        const aIdx = locationOrder.indexOf(aLoc);
-                        const bIdx = locationOrder.indexOf(bLoc);
-                        const aRank = aIdx === -1 ? 999 : aIdx;
-                        const bRank = bIdx === -1 ? 999 : bIdx;
-                        if (aRank !== bRank) return aRank - bRank;
-                        if (a.last_location_name && b.last_location_name) {
-                            return a.last_location_name.localeCompare(b.last_location_name);
-                        }
-                        return a.name.localeCompare(b.name);
-                    });
-                    break;
-                    
-                case 'case_date':
-                    sortedTrays.sort((a, b) => {
-                        // Find next case for each tray
-                        const now = new Date();
-                        const aCases = allCases.filter(c => c.tray_id === a.id && new Date(c.case_date) > now);
-                        const bCases = allCases.filter(c => c.tray_id === b.id && new Date(c.case_date) > now);
-                        
-                        const aNextCase = aCases.length > 0 ? new Date(Math.min(...aCases.map(c => new Date(c.case_date)))) : null;
-                        const bNextCase = bCases.length > 0 ? new Date(Math.min(...bCases.map(c => new Date(c.case_date)))) : null;
-                        
-                        // Trays with upcoming cases first
-                        if (aNextCase && !bNextCase) return -1;
-                        if (!aNextCase && bNextCase) return 1;
-                        if (!aNextCase && !bNextCase) return a.name.localeCompare(b.name);
-                        
-                        // Sort by soonest case date
-                        return aNextCase - bNextCase;
-                    });
-                    break;
-            }
-            
-            listEl.innerHTML = sortedTrays.map(tray => {
-                // Create custom status label - ALWAYS show location, never show status
-                let statusLabel = 'No location set';
-                let statusClass = `status-${tray.status}`;
-                
-                if (tray.last_location_type) {
-                    statusLabel = tray.last_location_type;
-                    if (tray.last_location_name) {
-                        statusLabel += ` - ${tray.last_location_name}`;
-                    }
-                }
-                
-                // Format timestamp
-                let locationInfo = '';
-                if (tray.last_seen_at) {
-                    // Add 'Z' to indicate UTC if not present
-                    const timestamp = tray.last_seen_at.endsWith('Z') ? tray.last_seen_at : tray.last_seen_at + 'Z';
-                    const lastSeen = new Date(timestamp);
-                    const now = new Date();
-                    const diffMs = now - lastSeen;
-                    const diffMins = Math.floor(diffMs / 60000);
-                    const diffHours = Math.floor(diffMins / 60);
-                    const diffDays = Math.floor(diffHours / 24);
-                    
-                    let timeAgo = '';
-                    if (diffDays > 0) {
-                        timeAgo = `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
-                    } else if (diffHours > 0) {
-                        timeAgo = `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
-                    } else if (diffMins > 0) {
-                        timeAgo = `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
-                    } else {
-                        timeAgo = 'just now';
-                    }
-                    
-                    locationInfo = `<div class="tray-location">📍 Dropped off ${timeAgo}</div>`;
-                }
-                
-                // Build priority badge
-                let priorityBadge = '';
-                if (tray.priority_numeric) {
-                    priorityBadge = `<span class="tray-status" style="background:#ffebee;color:#c62828;">P${tray.priority_numeric}</span>`;
-                } else if (tray.priority_partial) {
-                    priorityBadge = `<span class="tray-status" style="background:#e3f2fd;color:#1565c0;">Partial</span>`;
-                }
-                
-                return `
+
+            listEl.innerHTML = allTrays.map(tray => `
                 <div class="tray-card ${tray.color}" onclick="openTray(${tray.id})">
                     <div class="tray-name">${tray.name}</div>
-                    <span class="tray-status ${statusClass}">
-                        ${statusLabel}
-                    </span>
-                    ${priorityBadge}
-                    ${tray.items.length > 0 ? `<div style="margin-top:8px;font-size:14px;color:#86868b;">${tray.items.length} items</div>` : ''}
-                    ${locationInfo}
+                    <div style="font-size: 14px; color: #6b7280;">
+                        Status: ${tray.status.replace('_', ' ')}
+                    </div>
+                    ${tray.items.length > 0 ? `<div style="font-size: 14px; color: #86868b; margin-top: 8px;">${tray.items.length} items</div>` : ''}
                 </div>
-            `;
-            }).join('');
+            `).join('');
         }
 
-        function openTray(trayId) {
-            currentTray = allTrays.find(t => t.id === trayId);
-            if (!currentTray) return;
-        
-            document.getElementById('modalTrayName').textContent = currentTray.name;
-            
-            // Format detailed status with location and timestamp
-            let detailedStatus = currentTray.status.replace('_', ' ').toUpperCase();
-            if (currentTray.status === 'in_location') {
-                if (currentTray.last_location_type) {
-                    detailedStatus = currentTray.last_location_type;
-                    if (currentTray.last_location_name) {
-                        detailedStatus += ` - ${currentTray.last_location_name}`;
-                    }
-                    
-                    // Add timestamp if available
-                    if (currentTray.last_seen_at) {
-                        const timestamp = currentTray.last_seen_at.endsWith('Z') ? currentTray.last_seen_at : currentTray.last_seen_at + 'Z';
-                        const lastSeen = new Date(timestamp);
-                        
-                        const hours = lastSeen.getHours();
-                        const minutes = lastSeen.getMinutes().toString().padStart(2, '0');
-                        const ampm = hours >= 12 ? 'pm' : 'am';
-                        const displayHours = hours % 12 || 12;
-                        const month = (lastSeen.getMonth() + 1).toString();
-                        const day = lastSeen.getDate().toString();
-                        const year = lastSeen.getFullYear().toString().slice(-2);
-                        
-                        detailedStatus += ` - ${displayHours}:${minutes} ${ampm} on ${month}/${day}/${year}`;
-                    }
-                } else {
-                    detailedStatus = 'IN LOCATION';
-                }
-            }
-            
-            const itemsHtml = currentTray.items.length > 0 ? `
-                <div style="margin: 16px 0;">
-                    <strong>Items (${currentTray.items.length})</strong>
-                    <div class="item-list" style="margin-top: 8px;">
-                        ${currentTray.items.map(item => `
-                            <div style="padding: 8px; border-bottom: 1px solid #f5f5f7;">
-                                <div style="font-size: 14px;">
-                                    ${item.name} ${item.is_critical ? '<span class="critical-badge">CRITICAL</span>' : ''}
-                                </div>
-                                <div style="font-size: 12px; color: #86868b;">SKU: ${item.sku}</div>
-                                ${item.qty_expected ? `<div style="font-size: 12px; color: #86868b;">Stock: ${item.qty_on_hand || 0}/${item.qty_expected}</div>` : ''}
-                            </div>
-                        `).join('')}
+        async function openTray(trayId) {
+            const tray = allTrays.find(t => t.id === trayId);
+            if (!tray) return;
+
+            // Get pinned notes for this tray
+            const notesResponse = await fetch(`${API_URL}/trays/${trayId}/notes`);
+            const pinnedNotes = await notesResponse.json();
+
+            const itemsHtml = tray.items.length > 0
+                ? tray.items.map(item => `
+                    <div style="padding: 12px; border-bottom: 1px solid #f5f5f7;">
+                        <div style="font-weight: 600;">${item.name}</div>
+                        <div style="font-size: 13px; color: #86868b;">
+                            SKU: ${item.sku} • Stock: ${item.qty_on_hand || 0}/${item.qty_expected || '?'}
+                        </div>
                     </div>
-                </div>
-            ` : '<div style="margin: 16px 0; color: #86868b;">No items in tray</div>';
-            
-            document.getElementById('modalContent').innerHTML = `
-                <div style="margin-bottom: 16px; padding: 12px; background: #f5f5f7; border-radius: 8px;">
+                `).join('')
+                : '<div style="padding: 12px; color: #86868b;">No items</div>';
+
+            const notesHtml = pinnedNotes.length > 0
+                ? '<div style="margin-top: 16px;"><div style="font-weight: 600; margin-bottom: 12px;">📌 Pinned Notes</div>' +
+                  pinnedNotes.map(note => `
+                    <div class="pinned-note">
+                        <div class="pinned-note-title">${note.title}</div>
+                        <div class="pinned-note-content">${note.content.substring(0, 150)}${note.content.length > 150 ? '...' : ''}</div>
+                    </div>
+                  `).join('') + '</div>'
+                : '';
+
+            showModal(
+                tray.name,
+                `
+                <div style="margin-bottom: 16px;">
                     <div style="font-size: 14px; color: #86868b;">Status</div>
-                    <div style="font-size: 16px; font-weight: 500; margin-top: 4px;">
-                        ${detailedStatus}
-                    </div>
+                    <div style="font-size: 16px; font-weight: 500; margin-top: 4px;">${tray.status.replace('_', ' ').toUpperCase()}</div>
                 </div>
-                ${itemsHtml}
-                <button class="btn btn-primary" onclick="showDropoffForm()">Drop Off at Location</button>
-                <button class="btn btn-primary" onclick="showInventoryCheckForm()">Check Inventory</button>
-                <button class="btn btn-success" onclick="showRestockForm()">Restock</button>
-                <button class="btn btn-secondary" onclick="closeModal()">Close</button>
-            `;
-            
-            document.getElementById('trayModal').classList.add('show');
-        }
-
-        function showDropoffForm() {
-            document.getElementById('modalContent').innerHTML = `
-                <div class="form-group">
-                    <label class="form-label">Location Type</label>
-                    <select id="locationType" class="form-select">
-                        <option value="Hospital">Hospital</option>
-                        <option value="Warehouse">Warehouse</option>
-                        <option value="Vehicle">Vehicle</option>
-                        <option value="Office">Office</option>
-                        <option value="Storage">Storage</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Location Name (Optional)</label>
-                    <input type="text" id="locationName" class="form-input" placeholder="e.g., St. Mary's Hospital, Building A">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Case ID (Optional)</label>
-                    <input type="text" id="caseId" class="form-input" placeholder="CASE-2024-001">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Notes (Optional)</label>
-                    <input type="text" id="notes" class="form-input" placeholder="Any additional notes">
-                </div>
-                <button class="btn btn-primary" onclick="submitDropoff()">Confirm Drop Off</button>
-                <button class="btn btn-secondary" onclick="openTray(${currentTray.id})">Back</button>
-            `;
-        }
-
-        async function submitDropoff() {
-            const coords = await getGPS();
-            const locationName = document.getElementById('locationName').value.trim();
-            
-            const data = {
-                tray_id: currentTray.id,
-                user_id: USER_ID,
-                gps: coords,
-                location_type: document.getElementById('locationType').value,
-                location_name: locationName || null,
-                case_id: document.getElementById('caseId').value || null,
-                notes: document.getElementById('notes').value || null
-            };
-            
-            try {
-                const response = await fetch(`${API_URL}/scan-events/dropoff`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                
-                if (!response.ok) throw new Error('Failed to drop off');
-                
-                showSuccess('Tray dropped off successfully!');
-                closeModal();
-                loadTrays();
-            } catch (error) {
-                showError('Failed to drop off tray');
-                console.error(error);
-            }
-        }
-
-        function showInventoryCheckForm() {
-    const currentLocation = currentTray.last_location_type || 'Hospital';
-    const currentLocationName = currentTray.last_location_name || '';
-    
-    const itemsHtml = currentTray.items.map(item => {
-        const currentStock = item.qty_on_hand !== null ? item.qty_on_hand : 0;
-        const expectedStock = item.qty_expected !== null ? item.qty_expected : '?';
-        const maxQty = currentStock > 0 ? currentStock : 1;
-        return `
-        <div class="item-checkbox" style="flex-direction: column; align-items: stretch;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <input type="checkbox" id="item_${item.id}" value="${item.id}" onchange="toggleQtyInput(${item.id})">
-                <label for="item_${item.id}" style="flex: 1;">
-                    ${item.name} ${item.is_critical ? '<span class="critical-badge">CRITICAL</span>' : ''}
-                    <div style="font-size: 12px; color: #86868b;">SKU: ${item.sku} • Stock: ${currentStock}/${expectedStock}</div>
-                </label>
-            </div>
-            <div id="qty_container_${item.id}" style="display: none; margin-top: 8px; padding-left: 32px;">
-                <label style="font-size: 12px; color: #86868b; margin-bottom: 4px; display: block;">Quantity Used:</label>
-                <input type="number" id="qty_${item.id}" class="form-input" placeholder="How many used?" min="1" max="${maxQty}" value="1" style="width: 120px; padding: 10px; font-size: 16px; text-align: center;">
-            </div>
-        </div>
-    `;
-    }).join('');
-    
-    document.getElementById('modalContent').innerHTML = `
-        <p style="margin-bottom: 16px; font-size: 14px; color: #86868b;">
-            Select items that need restocking and enter quantity used:
-        </p>
-        <div class="item-list" style="margin-bottom: 16px;">
-            ${itemsHtml}
-        </div>
-        <div class="form-group">
-            <label class="form-label">Update Location *</label>
-            <select id="invCheckLocationType" class="form-select">
-                <option value="${currentLocation}">${currentLocation} (current)</option>
-                ${['Hospital', 'Warehouse', 'Vehicle', 'Office', 'Home', 'Storage', 'Other']
-                    .filter(loc => loc !== currentLocation)
-                    .map(loc => `<option value="${loc}">${loc}</option>`)
-                    .join('')}
-            </select>
-        </div>
-        <div class="form-group">
-            <label class="form-label">Location Name (Optional)</label>
-            <input type="text" id="invCheckLocationName" class="form-input" placeholder="e.g., St. Mary's Hospital" value="${currentLocationName}">
-        </div>
-        <div class="form-group">
-            <label class="form-label">Priority (Required)</label>
-            <div class="priority-selector">
-                <button class="priority-btn" onclick="selectPriority(1)">P1 (Low)</button>
-                <button class="priority-btn" onclick="selectPriority(2)">P2 (Med)</button>
-                <button class="priority-btn" onclick="selectPriority(3)">P3 (High)</button>
-            </div>
-        </div>
-        <button class="btn btn-primary" onclick="submitInventoryCheck()">Submit Check</button>
-        <button class="btn btn-secondary" onclick="openTray(${currentTray.id})">Back</button>
-    `;
-}
-
-function toggleQtyInput(itemId) {
-    const checkbox = document.getElementById(`item_${itemId}`);
-    const qtyContainer = document.getElementById(`qty_container_${itemId}`);
-    if (checkbox.checked) {
-        qtyContainer.style.display = 'block';
-    } else {
-        qtyContainer.style.display = 'none';
-    }
-}
-
-        let selectedPriority = null;
-        function selectPriority(priority) {
-            selectedPriority = priority;
-            document.querySelectorAll('.priority-btn').forEach(btn => btn.classList.remove('selected'));
-            event.target.classList.add('selected');
-        }
-
-        async function submitInventoryCheck() {
-    const coords = await getGPS();
-    const checkedItems = [];
-    
-    currentTray.items.forEach(item => {
-        const checkbox = document.getElementById(`item_${item.id}`);
-        if (checkbox && checkbox.checked) {
-            const qtyInput = document.getElementById(`qty_${item.id}`);
-            const qtyUsed = qtyInput ? parseInt(qtyInput.value) || 0 : 0;
-            
-            checkedItems.push({
-                item_id: item.id,
-                reason: "Needs restock",
-                qty_used: qtyUsed
-            });
-        }
-    });
-    
-    if (checkedItems.length === 0) {
-        showError('Please select at least one item');
-        return;
-    }
-    
-    if (selectedPriority === null) {
-        showError('Please select a priority level');
-        return;
-    }
-    
-    const locationType = document.getElementById('invCheckLocationType').value;
-    const locationName = document.getElementById('invCheckLocationName').value.trim();
-    
-    const data = {
-        tray_id: currentTray.id,
-        user_id: USER_ID,
-        gps: coords,
-        items: checkedItems,
-        user_priority_numeric: selectedPriority,
-        location_type: locationType,
-        location_name: locationName || null
-    };
-    
-    try {
-        const response = await fetch(`${API_URL}/inventory-checks`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-        
-        if (!response.ok) throw new Error('Failed to check inventory');
-        
-        showSuccess('Inventory check completed!');
-        closeModal();
-        loadTrays();
-    } catch (error) {
-        showError('Failed to check inventory');
-        console.error(error);
-    }
-}
-
-        function showRestockForm() {
-            const currentLocation = currentTray.last_location_type || 'Hospital';
-            const currentLocationName = currentTray.last_location_name || '';
-            
-            document.getElementById('modalContent').innerHTML = `
-                <p style="margin-bottom: 16px;">Choose restock type:</p>
-                <div class="form-group">
-                    <label class="form-label">Update Location *</label>
-                    <select id="restockLocationType" class="form-select">
-                        <option value="${currentLocation}">${currentLocation} (current)</option>
-                        ${['Hospital', 'Warehouse', 'Vehicle', 'Office', 'Home', 'Storage', 'Other']
-                            .filter(loc => loc !== currentLocation)
-                            .map(loc => `<option value="${loc}">${loc}</option>`)
-                            .join('')}
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Location Name (Optional)</label>
-                    <input type="text" id="restockLocationName" class="form-input" placeholder="e.g., St. Mary's Hospital" value="${currentLocationName}">
-                </div>
-                <button class="btn btn-success" onclick="submitFullRestock()">Full Restock (All Items)</button>
-                <button class="btn btn-primary" onclick="showPartialRestockForm()">Partial Restock</button>
-                <button class="btn btn-secondary" onclick="openTray(${currentTray.id})">Back</button>
-            `;
-        }
-
-        async function submitFullRestock() {
-            const coords = await getGPS();
-            const locationType = document.getElementById('restockLocationType').value;
-            const locationName = document.getElementById('restockLocationName').value.trim();
-            
-            const data = {
-                tray_id: currentTray.id,
-                user_id: USER_ID,
-                gps: coords,
-                location_type: locationType,
-                location_name: locationName || null
-            };
-            
-            try {
-                const response = await fetch(`${API_URL}/restocks/full`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                
-                if (!response.ok) throw new Error('Failed to restock');
-                
-                showSuccess('Tray fully restocked!');
-                closeModal();
-                loadTrays();
-            } catch (error) {
-                showError('Failed to restock tray');
-                console.error(error);
-            }
-        }
-
-        function showPartialRestockForm() {
-            const currentLocation = currentTray.last_location_type || 'Hospital';
-            const currentLocationName = currentTray.last_location_name || '';
-            
-            const itemsHtml = currentTray.items.map(item => {
-                const currentStock = item.qty_on_hand !== null ? item.qty_on_hand : 0;
-                const expectedStock = item.qty_expected !== null ? item.qty_expected : '?';
-                const maxRestock = item.qty_expected ? Math.max(0, item.qty_expected - currentStock) : 999;
-                
-                return `
-                <div class="item-checkbox" style="flex-direction: column; align-items: stretch;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <input type="checkbox" id="restock_${item.id}" value="${item.id}" onchange="toggleRestockQtyInput(${item.id})">
-                        <label for="restock_${item.id}" style="flex: 1;">
-                            ${item.name}
-                            <div style="font-size: 12px; color: #86868b;">SKU: ${item.sku} • Stock: ${currentStock}/${expectedStock}</div>
-                        </label>
-                    </div>
-                    <div id="restock_qty_container_${item.id}" style="display: none; margin-top: 8px; padding-left: 32px;">
-                        <label style="font-size: 12px; color: #86868b; margin-bottom: 4px; display: block;">Quantity Restocked:</label>
-                        <input type="number" id="restock_qty_${item.id}" class="form-input" placeholder="How many added?" min="1" max="${maxRestock}" value="1" data-current="${currentStock}" data-expected="${item.qty_expected || 0}" oninput="updateRestockPreview(${item.id})" style="width: 120px; padding: 10px; font-size: 16px; text-align: center;">
-                        <div id="restock_preview_${item.id}" style="font-size: 12px; color: #007aff; margin-top: 4px;">New stock: ${Math.min(currentStock + 1, item.qty_expected || currentStock + 1)}/${expectedStock}</div>
-                    </div>
-                </div>
-            `;
-            }).join('');
-            
-            document.getElementById('modalContent').innerHTML = `
-                <p style="margin-bottom: 16px; font-size: 14px; color: #86868b;">
-                    Select items you restocked and enter quantity added:
-                </p>
-                <div class="item-list" style="margin-bottom: 16px;">
+                <div style="max-height: 300px; overflow-y: auto; border: 1px solid #f5f5f7; border-radius: 8px; margin-bottom: 16px;">
                     ${itemsHtml}
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Update Location *</label>
-                    <select id="partialRestockLocationType" class="form-select">
-                        <option value="${currentLocation}">${currentLocation} (current)</option>
-                        ${['Hospital', 'Warehouse', 'Vehicle', 'Office', 'Home', 'Storage', 'Other']
-                            .filter(loc => loc !== currentLocation)
-                            .map(loc => `<option value="${loc}">${loc}</option>`)
-                            .join('')}
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Location Name (Optional)</label>
-                    <input type="text" id="partialRestockLocationName" class="form-input" placeholder="e.g., St. Mary's Hospital" value="${currentLocationName}">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Remaining Priority</label>
-                    <div class="priority-selector">
-                        <button class="priority-btn" onclick="selectNewPriority('partial')">Partial (Blue)</button>
-                        <button class="priority-btn" onclick="selectNewPriority(1)">P1</button>
-                        <button class="priority-btn" onclick="selectNewPriority(2)">P2</button>
-                        <button class="priority-btn" onclick="selectNewPriority(3)">P3</button>
+                ${notesHtml}
+                <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+                `
+            );
+        }
+
+        // =========================
+        // DOCTOR FUNCTIONS
+        // =========================
+
+        async function loadDoctors() {
+            try {
+                const response = await fetch(`${API_URL}/doctors`);
+                allDoctors = await response.json();
+                renderDoctors();
+            } catch (error) {
+                showError('Failed to load doctors');
+                console.error(error);
+            }
+        }
+
+        function renderDoctors() {
+            const listEl = document.getElementById('doctorList');
+
+            if (allDoctors.length === 0) {
+                listEl.innerHTML = '<div class="empty-state">No doctors yet. Click "Add Doctor" to create one.</div>';
+                return;
+            }
+
+            listEl.innerHTML = allDoctors.map(doctor => `
+                <div class="doctor-card" onclick="openDoctor(${doctor.id})">
+                    <div class="doctor-name">${doctor.name}</div>
+                    ${doctor.specialty ? `<div class="doctor-specialty">${doctor.specialty}</div>` : ''}
+                    <div class="doctor-contact">
+                        ${doctor.hospital ? `🏥 ${doctor.hospital}` : ''}
+                        ${doctor.phone ? ` • 📞 ${doctor.phone}` : ''}
                     </div>
                 </div>
-                <button class="btn btn-success" onclick="submitPartialRestock()">Submit Restock</button>
-                <button class="btn btn-secondary" onclick="showRestockForm()">Back</button>
-            `;
+            `).join('');
         }
 
-        function toggleRestockQtyInput(itemId) {
-            const checkbox = document.getElementById(`restock_${itemId}`);
-            const qtyContainer = document.getElementById(`restock_qty_container_${itemId}`);
-            if (checkbox.checked) {
-                qtyContainer.style.display = 'block';
-            } else {
-                qtyContainer.style.display = 'none';
-            }
+        function showCreateDoctorForm() {
+            showModal(
+                'Add Doctor',
+                `
+                <div class="form-group">
+                    <label class="form-label">Name *</label>
+                    <input type="text" id="doctorName" class="form-input" placeholder="Dr. John Smith">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Specialty</label>
+                    <input type="text" id="doctorSpecialty" class="form-input" placeholder="Orthopedic Surgery">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone</label>
+                    <input type="text" id="doctorPhone" class="form-input" placeholder="555-1234">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="doctorEmail" class="form-input" placeholder="doctor@hospital.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Hospital</label>
+                    <input type="text" id="doctorHospital" class="form-input" placeholder="St. Mary's Hospital">
+                </div>
+                <button class="btn btn-primary" onclick="createDoctor()">Add Doctor</button>
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                `
+            );
         }
 
-        function updateRestockPreview(itemId) {
-            const qtyInput = document.getElementById(`restock_qty_${itemId}`);
-            const preview = document.getElementById(`restock_preview_${itemId}`);
-            const currentStock = parseInt(qtyInput.dataset.current) || 0;
-            const expectedStock = parseInt(qtyInput.dataset.expected) || 0;
-            const qtyAdded = parseInt(qtyInput.value) || 0;
-            
-            const newStock = Math.min(currentStock + qtyAdded, expectedStock);
-            const displayExpected = expectedStock > 0 ? expectedStock : '?';
-            
-            preview.textContent = `New stock: ${newStock}/${displayExpected}`;
-        }
-
-        let newPriority = 'partial';
-        function selectNewPriority(priority) {
-            newPriority = priority;
-            document.querySelectorAll('.priority-btn').forEach(btn => btn.classList.remove('selected'));
-            event.target.classList.add('selected');
-        }
-
-        async function submitPartialRestock() {
-            const coords = await getGPS();
-            const restockedItems = [];
-            
-            currentTray.items.forEach(item => {
-                const checkbox = document.getElementById(`restock_${item.id}`);
-                if (checkbox && checkbox.checked) {
-                    const qtyInput = document.getElementById(`restock_qty_${item.id}`);
-                    const qtyRestocked = qtyInput ? parseInt(qtyInput.value) || 0 : 0;
-                    restockedItems.push({ 
-                        item_id: item.id,
-                        qty_restocked: qtyRestocked
-                    });
-                }
-            });
-            
-            if (restockedItems.length === 0) {
-                showError('Please select at least one item');
-                return;
-            }
-            
-            const locationType = document.getElementById('partialRestockLocationType').value;
-            const locationName = document.getElementById('partialRestockLocationName').value.trim();
-            
-            const data = {
-                tray_id: currentTray.id,
-                user_id: USER_ID,
-                gps: coords,
-                items: restockedItems,
-                new_priority: newPriority,
-                location_type: locationType,
-                location_name: locationName || null
-            };
-            
-            try {
-                const response = await fetch(`${API_URL}/restocks/partial`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                
-                if (!response.ok) throw new Error('Failed to partial restock');
-                
-                showSuccess('Partial restock completed!');
-                closeModal();
-                loadTrays();
-            } catch (error) {
-                showError('Failed to partial restock');
-                console.error(error);
-            }
-        }
-
-        async function createTray() {
-            const name = document.getElementById('newTrayName').value.trim();
+        async function createDoctor() {
+            const name = document.getElementById('doctorName').value.trim();
             if (!name) {
-                showError('Please enter a tray name');
+                showError('Doctor name is required');
                 return;
             }
-            
-            try {
-                const response = await fetch(`${API_URL}/seed/trays`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name })
-                });
-                
-                if (!response.ok) {
-                    const err = await response.json();
-                    throw new Error(err.detail || 'Failed to create tray');
-                }
-                
-                showSuccess(`Tray "${name}" created!`);
-                document.getElementById('newTrayName').value = '';
-                loadTraysForAdmin();
-            } catch (error) {
-                showError(error.message);
-            }
-        }
 
-        async function loadTraysForAdmin() {
-            try {
-                const response = await fetch(`${API_URL}/trays`);
-                const trays = await response.json();
-                
-                const select = document.getElementById('itemTraySelect');
-                select.innerHTML = '<option value="">Select a tray...</option>' + 
-                    trays.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
-            } catch (error) {
-                console.error(error);
-            }
-        }
-
-        async function addItem() {
-            const trayId = document.getElementById('itemTraySelect').value;
-            const sku = document.getElementById('itemSku').value.trim();
-            const name = document.getElementById('itemName').value.trim();
-            const qtyExpected = parseInt(document.getElementById('itemQtyExpected').value) || null;
-            const qtyOnHand = parseInt(document.getElementById('itemQtyOnHand').value) || null;
-            const isCritical = document.getElementById('itemCritical').checked;
-            
-            if (!trayId || !sku || !name) {
-                showError('Please fill in all required fields');
-                return;
-            }
-            
-            try {
-                const response = await fetch(`${API_URL}/seed/tray-items`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        tray_id: parseInt(trayId),
-                        sku,
-                        name,
-                        qty_expected: qtyExpected,
-                        qty_on_hand: qtyOnHand,
-                        is_critical: isCritical
-                    })
-                });
-                
-                if (!response.ok) {
-                    const err = await response.json();
-                    throw new Error(err.detail || 'Failed to add item');
-                }
-                
-                showSuccess(`Item "${name}" added!`);
-                document.getElementById('itemSku').value = '';
-                document.getElementById('itemName').value = '';
-                document.getElementById('itemQtyExpected').value = '';
-                document.getElementById('itemQtyOnHand').value = '';
-                document.getElementById('itemCritical').checked = false;
-            } catch (error) {
-                showError(error.message);
-            }
-        }
-
-        function closeModal() {
-            document.getElementById('trayModal').classList.remove('show');
-            document.getElementById('caseModal').classList.remove('show');
-            currentTray = null;
-        }
-
-        async function getGPS() {
-            return new Promise((resolve) => {
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(
-                        (position) => {
-                            resolve({
-                                lat: position.coords.latitude,
-                                lng: position.coords.longitude
-                            });
-                        },
-                        () => {
-                            resolve({ lat: 39.7392, lng: -104.9903 });
-                        }
-                    );
-                } else {
-                    resolve({ lat: 39.7392, lng: -104.9903 });
-                }
-            });
-        }
-
-        function showError(msg) {
-            const el = document.getElementById('errorMsg');
-            el.textContent = msg;
-            el.style.display = 'block';
-            setTimeout(() => el.style.display = 'none', 5000);
-        }
-
-        function showSuccess(msg) {
-            const el = document.getElementById('successMsg');
-            el.textContent = msg;
-            el.style.display = 'block';
-            setTimeout(() => el.style.display = 'none', 3000);
-        }
-
-        function searchTrays() {
-            const searchInput = document.getElementById('traySearchInput');
-            const clearBtn = document.getElementById('clearSearchBtn');
-            
-            // Show/hide clear button based on input
-            if (searchInput.value.trim()) {
-                clearBtn.style.display = 'block';
-            } else {
-                clearBtn.style.display = 'none';
-            }
-            
-            // Trigger sorting/filtering
-            sortTrays();
-        }
-
-        function clearSearch() {
-            document.getElementById('traySearchInput').value = '';
-            document.getElementById('clearSearchBtn').style.display = 'none';
-            sortTrays();
-        }
-
-        // ===========================
-        // CALENDAR FUNCTIONS
-        // ===========================
-
-        async function loadTraysForCases() {
-            try {
-                const response = await fetch(`${API_URL}/trays`);
-                const trays = await response.json();
-                
-                const select = document.getElementById('caseTray');
-                select.innerHTML = '<option value="">None</option>' + 
-                    trays.map(t => `<option value="${t.id}">${t.name}</option>`).join('') +
-                    '<option value="other">Other</option>';
-                
-                select.addEventListener('change', function() {
-                    const otherGroup = document.getElementById('otherTrayGroup');
-                    if (this.value === 'other') {
-                        otherGroup.style.display = 'block';
-                    } else {
-                        otherGroup.style.display = 'none';
-                    }
-                });
-            } catch (error) {
-                console.error(error);
-            }
-        }
-
-        async function createCase() {
-            const procedure = document.getElementById('caseProcedure').value.trim();
-            const dateTime = document.getElementById('caseDateTime').value;
-            const location = document.getElementById('caseLocation').value.trim();
-            const doctor = document.getElementById('caseDoctor').value.trim();
-            const traySelect = document.getElementById('caseTray').value;
-            const otherTray = document.getElementById('caseOtherTray').value.trim();
-            const notes = document.getElementById('caseNotes').value.trim();
-            
-            if (!procedure || !dateTime || !location) {
-                showError('Please fill in all required fields (Procedure, Date/Time, Location)');
-                return;
-            }
-            
-            // Keep the datetime as-is without timezone conversion
             const data = {
-                procedure,
-                case_date: dateTime + ':00',
-                location,
-                doctor: doctor || null,
-                tray_id: traySelect && traySelect !== 'other' && traySelect !== '' ? parseInt(traySelect) : null,
-                tray_other: traySelect === 'other' ? otherTray : null,
-                notes: notes || null
+                name,
+                specialty: document.getElementById('doctorSpecialty').value.trim() || null,
+                phone: document.getElementById('doctorPhone').value.trim() || null,
+                email: document.getElementById('doctorEmail').value.trim() || null,
+                hospital: document.getElementById('doctorHospital').value.trim() || null,
             };
-            
+
             try {
-                const response = await fetch(`${API_URL}/cases`, {
+                const response = await fetch(`${API_URL}/doctors`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
-                
-                if (!response.ok) {
-                    const err = await response.json();
-                    throw new Error(err.detail || 'Failed to book case');
-                }
-                
-                showSuccess('Case booked successfully!');
-                document.getElementById('caseProcedure').value = '';
-                document.getElementById('caseDateTime').value = '';
-                document.getElementById('caseLocation').value = '';
-                document.getElementById('caseDoctor').value = '';
-                document.getElementById('caseTray').value = '';
-                document.getElementById('caseOtherTray').value = '';
-                document.getElementById('caseNotes').value = '';
-                document.getElementById('otherTrayGroup').style.display = 'none';
-                
-                // Refresh calendar
-                if (calendar) {
-                    loadCalendarEvents();
-                }
+
+                if (!response.ok) throw new Error('Failed to create doctor');
+
+                showSuccess('Doctor added successfully!');
+                closeModal();
+                loadDoctors();
             } catch (error) {
-                showError(error.message);
+                showError('Failed to create doctor');
+                console.error(error);
+            }
+        }
+
+        async function openDoctor(doctorId) {
+            const doctor = allDoctors.find(d => d.id === doctorId);
+            if (!doctor) return;
+
+            // Get pinned notes for this doctor
+            const notesResponse = await fetch(`${API_URL}/doctors/${doctorId}/notes`);
+            const pinnedNotes = await notesResponse.json();
+
+            const notesHtml = pinnedNotes.length > 0
+                ? '<div style="margin-top: 16px;"><div style="font-weight: 600; margin-bottom: 12px;">📌 Pinned Notes</div>' +
+                  pinnedNotes.map(note => `
+                    <div class="pinned-note">
+                        <div class="pinned-note-title">${note.title}</div>
+                        <div class="pinned-note-content">${note.content.substring(0, 150)}${note.content.length > 150 ? '...' : ''}</div>
+                    </div>
+                  `).join('') + '</div>'
+                : '';
+
+            showModal(
+                doctor.name,
+                `
+                <div style="margin-bottom: 16px;">
+                    ${doctor.specialty ? `<div style="color: #6366f1; font-size: 16px; margin-bottom: 8px;">${doctor.specialty}</div>` : ''}
+                    ${doctor.hospital ? `<div style="font-size: 14px; color: #6b7280; margin-bottom: 4px;">🏥 ${doctor.hospital}</div>` : ''}
+                    ${doctor.phone ? `<div style="font-size: 14px; color: #6b7280; margin-bottom: 4px;">📞 ${doctor.phone}</div>` : ''}
+                    ${doctor.email ? `<div style="font-size: 14px; color: #6b7280; margin-bottom: 4px;">✉️ ${doctor.email}</div>` : ''}
+                </div>
+                ${notesHtml}
+                <button class="btn btn-primary" onclick="showEditDoctorForm(${doctorId})">Edit</button>
+                <button class="btn btn-danger" onclick="deleteDoctor(${doctorId})">Delete</button>
+                <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+                `
+            );
+        }
+
+        function showEditDoctorForm(doctorId) {
+            const doctor = allDoctors.find(d => d.id === doctorId);
+            if (!doctor) return;
+
+            showModal(
+                'Edit Doctor',
+                `
+                <div class="form-group">
+                    <label class="form-label">Name *</label>
+                    <input type="text" id="doctorName" class="form-input" value="${doctor.name}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Specialty</label>
+                    <input type="text" id="doctorSpecialty" class="form-input" value="${doctor.specialty || ''}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone</label>
+                    <input type="text" id="doctorPhone" class="form-input" value="${doctor.phone || ''}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="doctorEmail" class="form-input" value="${doctor.email || ''}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Hospital</label>
+                    <input type="text" id="doctorHospital" class="form-input" value="${doctor.hospital || ''}">
+                </div>
+                <button class="btn btn-primary" onclick="updateDoctor(${doctorId})">Save Changes</button>
+                <button class="btn btn-secondary" onclick="openDoctor(${doctorId})">Cancel</button>
+                `
+            );
+        }
+
+        async function updateDoctor(doctorId) {
+            const name = document.getElementById('doctorName').value.trim();
+            if (!name) {
+                showError('Doctor name is required');
+                return;
+            }
+
+            const data = {
+                name,
+                specialty: document.getElementById('doctorSpecialty').value.trim() || null,
+                phone: document.getElementById('doctorPhone').value.trim() || null,
+                email: document.getElementById('doctorEmail').value.trim() || null,
+                hospital: document.getElementById('doctorHospital').value.trim() || null,
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/doctors/${doctorId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) throw new Error('Failed to update doctor');
+
+                showSuccess('Doctor updated successfully!');
+                closeModal();
+                loadDoctors();
+            } catch (error) {
+                showError('Failed to update doctor');
+                console.error(error);
+            }
+        }
+
+        async function deleteDoctor(doctorId) {
+            if (!confirm('Are you sure you want to delete this doctor? This will also unpin all notes from this doctor.')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/doctors/${doctorId}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) throw new Error('Failed to delete doctor');
+
+                showSuccess('Doctor deleted successfully!');
+                closeModal();
+                loadDoctors();
+            } catch (error) {
+                showError('Failed to delete doctor');
+                console.error(error);
+            }
+        }
+
+        // =========================
+        // NOTE FUNCTIONS
+        // =========================
+
+        async function loadNotes() {
+            try {
+                const response = await fetch(`${API_URL}/notes`);
+                allNotes = await response.json();
+                renderNotes();
+            } catch (error) {
+                showError('Failed to load notes');
+                console.error(error);
+            }
+        }
+
+        function renderNotes() {
+            const listEl = document.getElementById('noteList');
+
+            if (allNotes.length === 0) {
+                listEl.innerHTML = '<div class="empty-state">No notes yet. Click "Create Note" to add one.</div>';
+                return;
+            }
+
+            listEl.innerHTML = allNotes.map(note => {
+                const pinsHtml = note.pins.length > 0
+                    ? '<div class="note-pins">' + note.pins.map(pin =>
+                        `<span class="pin-badge">${pin.entity_type}: ${pin.entity_name || `ID ${pin.entity_id}`}</span>`
+                    ).join('') + '</div>'
+                    : '';
+
+                return `
+                    <div class="note-card" onclick="openNote(${note.id})">
+                        <div class="note-title">${note.title}</div>
+                        <div class="note-preview">${note.content.substring(0, 100)}${note.content.length > 100 ? '...' : ''}</div>
+                        ${pinsHtml}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function showCreateNoteForm() {
+            // Load all entities for pinning
+            await Promise.all([loadTrays(), loadDoctors(), loadCases()]);
+
+            const pinToHtml = `
+                <div class="pin-to-section">
+                    <div class="pin-to-label">📌 Pin To (Optional)</div>
+
+                    ${allTrays.length > 0 ? `
+                    <div style="margin-bottom: 12px;">
+                        <div style="font-weight: 500; font-size: 13px; color: #6b7280; margin-bottom: 6px;">Trays</div>
+                        <div style="max-height: 150px; overflow-y: auto;">
+                            ${allTrays.map(tray => `
+                                <div class="pin-checkbox">
+                                    <input type="checkbox" id="pin_tray_${tray.id}" value="${tray.id}">
+                                    <label for="pin_tray_${tray.id}">${tray.name}</label>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    ${allCases.length > 0 ? `
+                    <div style="margin-bottom: 12px;">
+                        <div style="font-weight: 500; font-size: 13px; color: #6b7280; margin-bottom: 6px;">Cases</div>
+                        <div style="max-height: 150px; overflow-y: auto;">
+                            ${allCases.map(c => `
+                                <div class="pin-checkbox">
+                                    <input type="checkbox" id="pin_case_${c.id}" value="${c.id}">
+                                    <label for="pin_case_${c.id}">${c.procedure} - ${new Date(c.case_date).toLocaleDateString()}</label>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    ${allDoctors.length > 0 ? `
+                    <div>
+                        <div style="font-weight: 500; font-size: 13px; color: #6b7280; margin-bottom: 6px;">Doctors</div>
+                        <div style="max-height: 150px; overflow-y: auto;">
+                            ${allDoctors.map(doctor => `
+                                <div class="pin-checkbox">
+                                    <input type="checkbox" id="pin_doctor_${doctor.id}" value="${doctor.id}">
+                                    <label for="pin_doctor_${doctor.id}">${doctor.name}${doctor.specialty ? ` (${doctor.specialty})` : ''}</label>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+
+            showModal(
+                'Create Note',
+                `
+                <div class="form-group">
+                    <label class="form-label">Title *</label>
+                    <input type="text" id="noteTitle" class="form-input" placeholder="Note title">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Content *</label>
+                    <textarea id="noteContent" class="form-textarea" placeholder="Write your note here..."></textarea>
+                </div>
+                ${pinToHtml}
+                <button class="btn btn-primary" onclick="createNote()">Create Note</button>
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                `
+            );
+        }
+
+        async function createNote() {
+            const title = document.getElementById('noteTitle').value.trim();
+            const content = document.getElementById('noteContent').value.trim();
+
+            if (!title || !content) {
+                showError('Title and content are required');
+                return;
+            }
+
+            // Collect pins
+            const pin_to_trays = allTrays.filter(t =>
+                document.getElementById(`pin_tray_${t.id}`)?.checked
+            ).map(t => t.id);
+
+            const pin_to_cases = allCases.filter(c =>
+                document.getElementById(`pin_case_${c.id}`)?.checked
+            ).map(c => c.id);
+
+            const pin_to_doctors = allDoctors.filter(d =>
+                document.getElementById(`pin_doctor_${d.id}`)?.checked
+            ).map(d => d.id);
+
+            const data = {
+                title,
+                content,
+                pin_to_trays: pin_to_trays.length > 0 ? pin_to_trays : null,
+                pin_to_cases: pin_to_cases.length > 0 ? pin_to_cases : null,
+                pin_to_doctors: pin_to_doctors.length > 0 ? pin_to_doctors : null,
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/notes`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) throw new Error('Failed to create note');
+
+                showSuccess('Note created successfully!');
+                closeModal();
+                loadNotes();
+            } catch (error) {
+                showError('Failed to create note');
+                console.error(error);
+            }
+        }
+
+        async function openNote(noteId) {
+            const note = allNotes.find(n => n.id === noteId);
+            if (!note) return;
+
+            const pinsHtml = note.pins.length > 0
+                ? '<div style="margin-top: 16px;"><div style="font-weight: 600; margin-bottom: 8px;">📌 Pinned To:</div>' +
+                  note.pins.map(pin => `<span class="pin-badge">${pin.entity_type}: ${pin.entity_name || `ID ${pin.entity_id}`}</span>`).join(' ') +
+                  '</div>'
+                : '<div style="margin-top: 16px; color: #86868b;">Not pinned to anything</div>';
+
+            showModal(
+                note.title,
+                `
+                <div style="margin-bottom: 16px; white-space: pre-wrap; font-size: 14px; line-height: 1.6; color: #374151;">
+                    ${note.content}
+                </div>
+                ${pinsHtml}
+                <div style="font-size: 12px; color: #86868b; margin-top: 16px;">
+                    Created: ${new Date(note.created_at).toLocaleString()}
+                </div>
+                <button class="btn btn-primary" onclick="showEditNoteForm(${noteId})">Edit</button>
+                <button class="btn btn-danger" onclick="deleteNote(${noteId})">Delete</button>
+                <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+                `
+            );
+        }
+
+        function showEditNoteForm(noteId) {
+            const note = allNotes.find(n => n.id === noteId);
+            if (!note) return;
+
+            showModal(
+                'Edit Note',
+                `
+                <div class="form-group">
+                    <label class="form-label">Title *</label>
+                    <input type="text" id="noteTitle" class="form-input" value="${note.title}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Content *</label>
+                    <textarea id="noteContent" class="form-textarea">${note.content}</textarea>
+                </div>
+                <div style="font-size: 13px; color: #6b7280; margin-top: 12px;">
+                    Note: Use the pin/unpin buttons in the note details to manage pins.
+                </div>
+                <button class="btn btn-primary" onclick="updateNote(${noteId})">Save Changes</button>
+                <button class="btn btn-secondary" onclick="openNote(${noteId})">Cancel</button>
+                `
+            );
+        }
+
+        async function updateNote(noteId) {
+            const title = document.getElementById('noteTitle').value.trim();
+            const content = document.getElementById('noteContent').value.trim();
+
+            if (!title || !content) {
+                showError('Title and content are required');
+                return;
+            }
+
+            const data = { title, content };
+
+            try {
+                const response = await fetch(`${API_URL}/notes/${noteId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) throw new Error('Failed to update note');
+
+                showSuccess('Note updated successfully!');
+                closeModal();
+                loadNotes();
+            } catch (error) {
+                showError('Failed to update note');
+                console.error(error);
+            }
+        }
+
+        async function deleteNote(noteId) {
+            if (!confirm('Are you sure you want to delete this note?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/notes/${noteId}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) throw new Error('Failed to delete note');
+
+                showSuccess('Note deleted successfully!');
+                closeModal();
+                loadNotes();
+            } catch (error) {
+                showError('Failed to delete note');
+                console.error(error);
+            }
+        }
+
+        // =========================
+        // CALENDAR FUNCTIONS
+        // =========================
+
+        async function loadCases() {
+            try {
+                const response = await fetch(`${API_URL}/cases`);
+                allCases = await response.json();
+            } catch (error) {
+                console.error('Failed to load cases:', error);
             }
         }
 
         function initializeCalendar() {
-            if (calendar) {
-                loadCalendarEvents();
-                return;
-            }
-
             const calendarEl = document.getElementById('calendar');
             calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
@@ -1403,17 +1116,15 @@ function toggleQtyInput(itemId) {
                 },
                 height: 'auto'
             });
-            
+
             calendar.render();
-            loadCalendarEvents();
         }
 
         async function loadCalendarEvents() {
             try {
-                const response = await fetch(`${API_URL}/cases`);
-                const cases = await response.json();
-                
-                const events = cases.map(c => ({
+                await loadCases();
+
+                const events = allCases.map(c => ({
                     id: c.id,
                     title: c.procedure,
                     start: c.case_date,
@@ -1425,10 +1136,10 @@ function toggleQtyInput(itemId) {
                         notes: c.notes,
                         user_id: c.user_id
                     },
-                    backgroundColor: '#007aff',
-                    borderColor: '#007aff'
+                    backgroundColor: '#6366f1',
+                    borderColor: '#6366f1'
                 }));
-                
+
                 if (calendar) {
                     calendar.removeAllEvents();
                     calendar.addEventSource(events);
@@ -1439,213 +1150,219 @@ function toggleQtyInput(itemId) {
             }
         }
 
-        let currentCase = null;
-
         function showCaseDetails(event) {
-            currentCase = {
-                id: event.id,
-                title: event.title,
-                start: event.start,
-                ...event.extendedProps
-            };
-            
-            const props = event.extendedProps;
-            const caseDate = new Date(event.start);
-            const dateStr = caseDate.toLocaleDateString();
-            const timeStr = caseDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            const trayInfo = props.tray_name || props.tray_other || 'No tray assigned';
-            
-            document.getElementById('caseModalContent').innerHTML = `
-                <div class="detail-row">
-                    <div class="detail-label">Procedure</div>
-                    <div class="detail-value">${event.title}</div>
+            showModal(
+                'Case Details',
+                `
+                <div style="font-size: 14px; line-height: 1.6;">
+                    <div style="margin-bottom: 12px;">
+                        <div style="font-weight: 600; color: #1d1d1f;">Procedure</div>
+                        <div style="color: #6b7280;">${event.title}</div>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <div style="font-weight: 600; color: #1d1d1f;">Date & Time</div>
+                        <div style="color: #6b7280;">${new Date(event.start).toLocaleString()}</div>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <div style="font-weight: 600; color: #1d1d1f;">Location</div>
+                        <div style="color: #6b7280;">${event.extendedProps.location}</div>
+                    </div>
+                    ${event.extendedProps.tray_name || event.extendedProps.tray_other ? `
+                    <div style="margin-bottom: 12px;">
+                        <div style="font-weight: 600; color: #1d1d1f;">Tray</div>
+                        <div style="color: #6b7280;">${event.extendedProps.tray_name || event.extendedProps.tray_other}</div>
+                    </div>
+                    ` : ''}
+                    ${event.extendedProps.notes ? `
+                    <div style="margin-bottom: 12px;">
+                        <div style="font-weight: 600; color: #1d1d1f;">Notes</div>
+                        <div style="color: #6b7280;">${event.extendedProps.notes}</div>
+                    </div>
+                    ` : ''}
                 </div>
-                <div class="detail-row">
-                    <div class="detail-label">Date & Time</div>
-                    <div class="detail-value">${dateStr} at ${timeStr}</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">Location</div>
-                    <div class="detail-value">${props.location}</div>
-                </div>
-                ${props.doctor ? `
-                <div class="detail-row">
-                    <div class="detail-label">Doctor</div>
-                    <div class="detail-value">${props.doctor}</div>
-                </div>
-                ` : ''}
-                <div class="detail-row">
-                    <div class="detail-label">Tray</div>
-                    <div class="detail-value">${trayInfo}</div>
-                </div>
-                ${props.notes ? `
-                <div class="detail-row">
-                    <div class="detail-label">Notes</div>
-                    <div class="detail-value">${props.notes}</div>
-                </div>
-                ` : ''}
-                <button class="btn btn-primary" onclick="showEditCaseForm()">Edit Case</button>
-                <button class="btn btn-primary" style="background: #ff3b30; margin-top: 8px;" onclick="deleteCaseFromModal(${event.id})">Delete Case</button>
                 <button class="btn btn-secondary" onclick="closeModal()">Close</button>
-            `;
-            
-            document.getElementById('caseModal').classList.add('show');
+                `
+            );
         }
 
-        async function deleteCaseFromModal(caseId) {
-            if (!confirm('Are you sure you want to delete this case?')) return;
-            
-            try {
-                const response = await fetch(`${API_URL}/cases/${caseId}`, {
-                    method: 'DELETE'
-                });
-                
-                if (!response.ok) throw new Error('Failed to delete case');
-                
-                showSuccess('Case deleted');
-                closeModal();
-                loadCalendarEvents();
-            } catch (error) {
-                showError('Failed to delete case');
-                console.error(error);
-            }
+        function showBookCaseForm() {
+            showModal(
+                'Book a Case',
+                `
+                <div class="form-group">
+                    <label class="form-label">Procedure *</label>
+                    <input type="text" id="caseProcedure" class="form-input" placeholder="e.g., Spinal Fusion">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Date & Time *</label>
+                    <input type="datetime-local" id="caseDateTime" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Location *</label>
+                    <input type="text" id="caseLocation" class="form-input" placeholder="e.g., St. Mary's Hospital">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Notes</label>
+                    <textarea id="caseNotes" class="form-textarea" rows="3" placeholder="Any additional notes"></textarea>
+                </div>
+                <button class="btn btn-primary" onclick="createCase()">Book Case</button>
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                `
+            );
         }
 
-        async function showEditCaseForm() {
-            // Load trays for the dropdown
-            try {
-                const response = await fetch(`${API_URL}/trays`);
-                const trays = await response.json();
-                
-                // Format the datetime for datetime-local input
-                const caseDate = new Date(currentCase.start);
-                const year = caseDate.getFullYear();
-                const month = String(caseDate.getMonth() + 1).padStart(2, '0');
-                const day = String(caseDate.getDate()).padStart(2, '0');
-                const hours = String(caseDate.getHours()).padStart(2, '0');
-                const minutes = String(caseDate.getMinutes()).padStart(2, '0');
-                const formattedDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
-                
-                // Determine which tray option is selected
-                let trayOptions = '<option value="">None</option>';
-                let selectedTrayId = '';
-                let isOtherSelected = false;
-                
-                trays.forEach(t => {
-                    const selected = currentCase.tray_name === t.name ? 'selected' : '';
-                    if (selected) selectedTrayId = t.id;
-                    trayOptions += `<option value="${t.id}" ${selected}>${t.name}</option>`;
-                });
-                
-                if (currentCase.tray_other) {
-                    trayOptions += '<option value="other" selected>Other</option>';
-                    isOtherSelected = true;
-                } else {
-                    trayOptions += '<option value="other">Other</option>';
-                }
-                
-                document.getElementById('caseModalContent').innerHTML = `
-                    <div class="form-group">
-                        <label class="form-label">Procedure *</label>
-                        <input type="text" id="editCaseProcedure" class="form-input" value="${currentCase.title}">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Date & Time *</label>
-                        <input type="datetime-local" id="editCaseDateTime" class="form-input" value="${formattedDateTime}">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Location *</label>
-                        <input type="text" id="editCaseLocation" class="form-input" value="${currentCase.location}">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Doctor (Optional)</label>
-                        <input type="text" id="editCaseDoctor" class="form-input" value="${currentCase.doctor || ''}">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Tray (Optional)</label>
-                        <select id="editCaseTray" class="form-select">
-                            ${trayOptions}
-                        </select>
-                    </div>
-                    <div class="form-group" id="editOtherTrayGroup" style="display:${isOtherSelected ? 'block' : 'none'};">
-                        <label class="form-label">Other Tray Name</label>
-                        <input type="text" id="editCaseOtherTray" class="form-input" value="${currentCase.tray_other || ''}">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Notes (Optional)</label>
-                        <textarea id="editCaseNotes" class="form-input" rows="3">${currentCase.notes || ''}</textarea>
-                    </div>
-                    <button class="btn btn-primary" onclick="updateCase()">Save Changes</button>
-                    <button class="btn btn-secondary" onclick="showCaseDetailsById(${currentCase.id})">Cancel</button>
-                `;
-                
-                // Add event listener for the tray select
-                document.getElementById('editCaseTray').addEventListener('change', function() {
-                    const otherGroup = document.getElementById('editOtherTrayGroup');
-                    if (this.value === 'other') {
-                        otherGroup.style.display = 'block';
-                    } else {
-                        otherGroup.style.display = 'none';
-                    }
-                });
-                
-            } catch (error) {
-                showError('Failed to load edit form');
-                console.error(error);
-            }
-        }
+        async function createCase() {
+            const procedure = document.getElementById('caseProcedure').value.trim();
+            const dateTime = document.getElementById('caseDateTime').value;
+            const location = document.getElementById('caseLocation').value.trim();
+            const notes = document.getElementById('caseNotes').value.trim();
 
-        async function updateCase() {
-            const procedure = document.getElementById('editCaseProcedure').value.trim();
-            const dateTime = document.getElementById('editCaseDateTime').value;
-            const location = document.getElementById('editCaseLocation').value.trim();
-            const doctor = document.getElementById('editCaseDoctor').value.trim();
-            const traySelect = document.getElementById('editCaseTray').value;
-            const otherTray = document.getElementById('editCaseOtherTray').value.trim();
-            const notes = document.getElementById('editCaseNotes').value.trim();
-            
             if (!procedure || !dateTime || !location) {
-                showError('Please fill in all required fields (Procedure, Date/Time, Location)');
+                showError('Please fill in all required fields');
                 return;
             }
-            
+
             const data = {
                 procedure,
                 case_date: dateTime + ':00',
                 location,
-                doctor: doctor || null,
-                tray_id: traySelect && traySelect !== 'other' && traySelect !== '' ? parseInt(traySelect) : null,
-                tray_other: traySelect === 'other' ? otherTray : null,
+                doctor: null,
+                tray_id: null,
+                tray_other: null,
                 notes: notes || null
             };
-            
+
             try {
-                const response = await fetch(`${API_URL}/cases/${currentCase.id}`, {
-                    method: 'PUT',
+                const response = await fetch(`${API_URL}/cases`, {
+                    method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
-                
-                if (!response.ok) {
-                    const err = await response.json();
-                    throw new Error(err.detail || 'Failed to update case');
-                }
-                
-                showSuccess('Case updated successfully!');
+
+                if (!response.ok) throw new Error('Failed to book case');
+
+                showSuccess('Case booked successfully!');
                 closeModal();
                 loadCalendarEvents();
+            } catch (error) {
+                showError('Failed to book case');
+                console.error(error);
+            }
+        }
+
+        // =========================
+        // ADMIN FUNCTIONS
+        // =========================
+
+        async function loadTraysForAdmin() {
+            try {
+                const response = await fetch(`${API_URL}/trays`);
+                const trays = await response.json();
+
+                const select = document.getElementById('itemTraySelect');
+                select.innerHTML = '<option value="">Select a tray...</option>' +
+                    trays.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        async function createTray() {
+            const name = document.getElementById('newTrayName').value.trim();
+            if (!name) {
+                showError('Please enter a tray name');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/seed/trays`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name })
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.detail || 'Failed to create tray');
+                }
+
+                showSuccess(`Tray "${name}" created!`);
+                document.getElementById('newTrayName').value = '';
+                loadTraysForAdmin();
             } catch (error) {
                 showError(error.message);
             }
         }
 
-        async function showCaseDetailsById(caseId) {
-            // Reload the case details after canceling edit
-            const events = calendar.getEvents();
-            const event = events.find(e => e.id == caseId);
-            if (event) {
-                showCaseDetails(event);
+        async function addItem() {
+            const trayId = document.getElementById('itemTraySelect').value;
+            const sku = document.getElementById('itemSku').value.trim();
+            const name = document.getElementById('itemName').value.trim();
+            const qtyExpected = parseInt(document.getElementById('itemQtyExpected').value) || null;
+            const qtyOnHand = parseInt(document.getElementById('itemQtyOnHand').value) || null;
+            const isCritical = document.getElementById('itemCritical').checked;
+
+            if (!trayId || !sku || !name) {
+                showError('Please fill in all required fields');
+                return;
             }
+
+            try {
+                const response = await fetch(`${API_URL}/seed/tray-items`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        tray_id: parseInt(trayId),
+                        sku,
+                        name,
+                        qty_expected: qtyExpected,
+                        qty_on_hand: qtyOnHand,
+                        is_critical: isCritical
+                    })
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.detail || 'Failed to add item');
+                }
+
+                showSuccess(`Item "${name}" added!`);
+                document.getElementById('itemSku').value = '';
+                document.getElementById('itemName').value = '';
+                document.getElementById('itemQtyExpected').value = '';
+                document.getElementById('itemQtyOnHand').value = '';
+                document.getElementById('itemCritical').checked = false;
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+
+        // =========================
+        // MODAL & UTILITY FUNCTIONS
+        // =========================
+
+        function showModal(title, body) {
+            document.getElementById('modalHeader').textContent = title;
+            document.getElementById('modalBody').innerHTML = body;
+            document.getElementById('modal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('show');
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('errorMsg');
+            el.textContent = msg;
+            el.style.display = 'block';
+            setTimeout(() => el.style.display = 'none', 5000);
+        }
+
+        function showSuccess(msg) {
+            const el = document.getElementById('successMsg');
+            el.textContent = msg;
+            el.style.display = 'block';
+            setTimeout(() => el.style.display = 'none', 3000);
         }
 
         // Initialize on page load
